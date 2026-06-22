@@ -1,0 +1,10 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.10.0.schema.json
+PackageIdentifier: Test.Inherit
+PackageVersion: "1.0.0"
+PackageLocale: en-US
+Publisher: Test Publisher
+PackageName: Inherit Example
+License: MIT
+ShortDescription: Tests root-level field inheritance
+ManifestType: defaultLocale
+ManifestVersion: 1.10.0

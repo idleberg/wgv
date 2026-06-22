@@ -1,0 +1,16 @@
+# Created with komac v2.13.0
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.10.0.schema.json
+PackageIdentifier: Test.Header
+PackageVersion: "1.0.0"
+PackageLocale: en-US
+Publisher: Test Publisher
+PackageName: Header App
+License: MIT
+ShortDescription: Schema header on line 2 after tool comment
+ManifestType: singleton
+ManifestVersion: 1.10.0
+Installers:
+- Architecture: x64
+  InstallerType: msi
+  InstallerUrl: https://example.com/installer.msi
+  InstallerSha256: ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890

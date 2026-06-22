@@ -1,0 +1,9 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.10.0.schema.json
+PackageIdentifier: Test.Missing
+PackageLocale: en-US
+Publisher: Test Publisher
+PackageName: Missing Fields
+License: MIT
+ShortDescription: Missing PackageVersion
+ManifestType: singleton
+ManifestVersion: 1.10.0

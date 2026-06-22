@@ -1,0 +1,20 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.10.0.schema.json
+PackageIdentifier: Test.Archive
+PackageVersion: "1.0.0"
+Installers:
+- Architecture: x64
+  InstallerType: zip
+  NestedInstallerType: portable
+  InstallerUrl: https://example.com/portable.zip
+  InstallerSha256: ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890
+  NestedInstallerFiles:
+  - RelativeFilePath: app.exe
+- Architecture: x64
+  InstallerType: zip
+  NestedInstallerType: wix
+  InstallerUrl: https://example.com/installer.zip
+  InstallerSha256: 1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF
+  NestedInstallerFiles:
+  - RelativeFilePath: setup.msi
+ManifestType: installer
+ManifestVersion: 1.10.0

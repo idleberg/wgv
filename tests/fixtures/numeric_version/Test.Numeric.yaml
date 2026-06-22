@@ -1,0 +1,15 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.10.0.schema.json
+PackageIdentifier: Test.Numeric
+PackageVersion: 1.0
+PackageLocale: en-US
+Publisher: Test Publisher
+PackageName: Numeric Version
+License: MIT
+ShortDescription: Tests YAML numeric version coercion
+ManifestType: singleton
+ManifestVersion: 1.10.0
+Installers:
+- Architecture: x64
+  InstallerType: msi
+  InstallerUrl: https://example.com/installer.msi
+  InstallerSha256: ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890

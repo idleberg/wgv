@@ -1,0 +1,10 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.10.0.schema.json
+PackageIdentifier: Test.Archive
+PackageVersion: "1.0.0"
+PackageLocale: en-US
+Publisher: Test Publisher
+PackageName: Archive App
+License: MIT
+ShortDescription: Tests archive installers with different nested types are not duplicates
+ManifestType: defaultLocale
+ManifestVersion: 1.10.0

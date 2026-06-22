@@ -1,0 +1,32 @@
+[tools]
+bun = "latest"
+lefthook = "latest"
+rust = "latest"
+
+[tasks.build]
+description = "Build the Rust formatter"
+run = "cargo build --release"
+
+[tasks.checks]
+description = "Run all checks (formatting, linting)"
+depends = ["format:check", "lint", "test"]
+
+[tasks.format]
+description = "Format Rust code"
+run = "cargo fmt"
+
+[tasks."format:check"]
+description = "Check Rust code formatting"
+run = "cargo fmt --check"
+
+[tasks.lint]
+description = "Lint Rust code with Clippy"
+run = "cargo clippy -- --deny warnings"
+
+[tasks.test]
+description = "Run all tests"
+run = "cargo test"
+
+[tasks.smoke]
+description = "Smoke test against real winget-pkgs manifests"
+run = "bash tasks/smoke.sh"

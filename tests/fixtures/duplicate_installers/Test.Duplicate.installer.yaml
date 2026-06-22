@@ -1,0 +1,16 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.10.0.schema.json
+PackageIdentifier: Test.Duplicate
+PackageVersion: "1.0.0"
+InstallerType: exe
+InstallerSwitches:
+  Silent: /S
+  SilentWithProgress: /S
+Installers:
+- Architecture: x64
+  InstallerUrl: https://example.com/installer1.exe
+  InstallerSha256: ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890
+- Architecture: x64
+  InstallerUrl: https://example.com/installer2.exe
+  InstallerSha256: 1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF
+ManifestType: installer
+ManifestVersion: 1.10.0

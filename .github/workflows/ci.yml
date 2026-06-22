@@ -1,0 +1,110 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo build --release
+      - run: cargo test
+
+  compare-with-winget:
+    name: Compare with winget validate (Windows)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Build wgv
+        run: cargo build --release
+
+      - name: Install winget (already available on windows-latest)
+        run: winget --version
+
+      - name: Clone winget-cli for test manifests
+        run: |
+          git clone --depth 1 https://github.com/microsoft/winget-cli.git ${{ runner.temp }}\winget-cli
+
+      - name: Run comparison tests
+        shell: pwsh
+        run: |
+          $wgv = ".\target\release\wgv.exe"
+          $testData = "${{ runner.temp }}\winget-cli\src\AppInstallerCLITests\TestData"
+          $results = @()
+          $pass = 0
+          $fail = 0
+          $skip = 0
+
+          # Test singleton manifests (v1.x only)
+          $singletons = Get-ChildItem "$testData\ManifestV1*-Singleton.yaml" -ErrorAction SilentlyContinue
+          foreach ($file in $singletons) {
+            Write-Host "Testing: $($file.Name)"
+
+            # Run wgv
+            $wgvOutput = & $wgv --ignore-warnings $file.FullName 2>&1
+            $wgvExit = $LASTEXITCODE
+
+            # Run winget validate
+            $wingetOutput = winget validate --ignore-warnings $file.FullName 2>&1
+            $wingetExit = $LASTEXITCODE
+
+            # Compare exit codes (winget uses different codes, so normalize)
+            $wgvOk = ($wgvExit -eq 0)
+            $wingetOk = ($wingetExit -eq 0)
+
+            if ($wgvOk -eq $wingetOk) {
+              $pass++
+              $results += "PASS: $($file.Name) (wgv=$wgvExit, winget=$wingetExit)"
+            } else {
+              $fail++
+              $results += "FAIL: $($file.Name) (wgv=$wgvExit, winget=$wingetExit)"
+              Write-Host "  wgv output: $wgvOutput"
+              Write-Host "  winget output: $wingetOutput"
+            }
+          }
+
+          # Test multi-file manifests
+          $multiDirs = Get-ChildItem "$testData\MultiFileManifestV1*" -Directory -ErrorAction SilentlyContinue
+          foreach ($dir in $multiDirs) {
+            Write-Host "Testing: $($dir.Name)"
+
+            $wgvOutput = & $wgv --ignore-warnings $dir.FullName 2>&1
+            $wgvExit = $LASTEXITCODE
+
+            $wingetOutput = winget validate --ignore-warnings $dir.FullName 2>&1
+            $wingetExit = $LASTEXITCODE
+
+            $wgvOk = ($wgvExit -eq 0)
+            $wingetOk = ($wingetExit -eq 0)
+
+            if ($wgvOk -eq $wingetOk) {
+              $pass++
+              $results += "PASS: $($dir.Name) (wgv=$wgvExit, winget=$wingetExit)"
+            } else {
+              $fail++
+              $results += "FAIL: $($dir.Name) (wgv=$wgvExit, winget=$wingetExit)"
+              Write-Host "  wgv output: $wgvOutput"
+              Write-Host "  winget output: $wingetOutput"
+            }
+          }
+
+          Write-Host ""
+          Write-Host "=== Results ==="
+          $results | ForEach-Object { Write-Host $_ }
+          Write-Host ""
+          Write-Host "Passed: $pass, Failed: $fail, Skipped: $skip"
+
+          if ($fail -gt 0) {
+            Write-Host "::warning::$fail test(s) produced different results between wgv and winget validate"
+          }

@@ -1,0 +1,15 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.10.0.schema.json
+PackageIdentifier: Test.ExeSwitch
+PackageVersion: "1.0.0"
+PackageLocale: en-US
+Publisher: Test Publisher
+PackageName: Exe No Switches
+License: MIT
+ShortDescription: Exe installer without silent switches
+ManifestType: singleton
+ManifestVersion: 1.10.0
+Installers:
+- Architecture: x64
+  InstallerType: exe
+  InstallerUrl: https://example.com/installer.exe
+  InstallerSha256: ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890
