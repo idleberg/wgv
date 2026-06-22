@@ -9,7 +9,11 @@ run = "cargo build --release"
 
 [tasks.checks]
 description = "Run all checks (formatting, linting)"
-depends = ["format:check", "lint", "test"]
+depends = ["format:check", "lint:check", "test"]
+
+[tasks.fix]
+description = "Fix Rust code"
+depends = ["lint", "format"]
 
 [tasks.format]
 description = "Format Rust code"
@@ -19,14 +23,14 @@ run = "cargo fmt"
 description = "Check Rust code formatting"
 run = "cargo fmt --check"
 
-[tasks.lint]
+[tasks."lint:check"]
 description = "Lint Rust code with Clippy"
 run = "cargo clippy -- --deny warnings"
+
+[tasks.lint]
+description = "Fix linting issues with Clippy"
+run = "cargo clippy --fix --allow-dirty --allow-staged"
 
 [tasks.test]
 description = "Run all tests"
 run = "cargo test"
-
-[tasks.smoke]
-description = "Smoke test against real winget-pkgs manifests"
-run = "bash tasks/smoke.sh"

@@ -106,11 +106,10 @@ fn is_valid_schema_header_url(
 ) -> bool {
 	if let Some(schema_json) =
 		schema::load_schema_json(manifest_version, manifest_info.manifest_type)
+		&& let Some(schema_id) = schema_json.get("$id").and_then(|v| v.as_str())
 	{
-		if let Some(schema_id) = schema_json.get("$id").and_then(|v| v.as_str()) {
-			let expected = format!("$schema={schema_id}");
-			return expected.eq_ignore_ascii_case(schema_header_url);
-		}
+		let expected = format!("$schema={schema_id}");
+		return expected.eq_ignore_ascii_case(schema_header_url);
 	}
 	false
 }

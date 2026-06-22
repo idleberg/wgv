@@ -1,7 +1,24 @@
 use std::fmt;
-use std::sync::atomic::AtomicBool;
+use std::sync::atomic::{AtomicU8, Ordering};
 
-pub(crate) static SILENT: AtomicBool = AtomicBool::new(false);
+const LOG_ERROR: u8 = 0;
+const LOG_WARN: u8 = 1;
+const LOG_INFO: u8 = 2;
+
+static LOG_LEVEL: AtomicU8 = AtomicU8::new(LOG_INFO);
+
+pub fn set_log_level(level: &str) {
+	let val = match level {
+		"error" => LOG_ERROR,
+		"warn" => LOG_WARN,
+		_ => LOG_INFO,
+	};
+	LOG_LEVEL.store(val, Ordering::Relaxed);
+}
+
+pub fn log_level() -> u8 {
+	LOG_LEVEL.load(Ordering::Relaxed)
+}
 
 fn is_unicode_supported() -> bool {
 	if cfg!(windows) {
@@ -15,6 +32,7 @@ fn is_unicode_supported() -> bool {
 }
 
 pub enum Level {
+	Info,
 	Warn,
 	Error,
 	Success,
@@ -24,6 +42,10 @@ impl Level {
 	fn prefix(&self) -> String {
 		let unicode = is_unicode_supported();
 		match self {
+			Level::Info => {
+				let sym = if unicode { "ℹ" } else { "i" };
+				format!("\x1b[34m{sym}\x1b[0m")
+			}
 			Level::Warn => "\x1b[43;30m WARN \x1b[0m".to_string(),
 			Level::Error => "\x1b[41;30m ERROR \x1b[0m".to_string(),
 			Level::Success => {
@@ -51,7 +73,11 @@ pub fn dim(value: &dyn fmt::Display) -> String {
 }
 
 macro_rules! logger_warn {
-    ($($arg:tt)*) => { $crate::logger::log($crate::logger::Level::Warn, format_args!($($arg)*)) };
+    ($($arg:tt)*) => {
+        if $crate::logger::log_level() >= 1 {
+            $crate::logger::log($crate::logger::Level::Warn, format_args!($($arg)*))
+        }
+    };
 }
 
 macro_rules! logger_error {
@@ -60,12 +86,21 @@ macro_rules! logger_error {
 
 macro_rules! logger_success {
     ($($arg:tt)*) => {
-        if !$crate::logger::SILENT.load(::std::sync::atomic::Ordering::Relaxed) {
+        if $crate::logger::log_level() >= 2 {
             $crate::logger::log($crate::logger::Level::Success, format_args!($($arg)*))
         }
     };
 }
 
+macro_rules! logger_info {
+    ($($arg:tt)*) => {
+        if $crate::logger::log_level() >= 2 {
+            $crate::logger::log($crate::logger::Level::Info, format_args!($($arg)*))
+        }
+    };
+}
+
 pub(crate) use logger_error;
+pub(crate) use logger_info;
 pub(crate) use logger_success;
 pub(crate) use logger_warn;
