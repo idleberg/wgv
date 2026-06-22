@@ -11,7 +11,11 @@ mod logger;
 use logger::*;
 
 #[derive(Parser)]
-#[command(name = "wgv", about = "Cross-platform winget manifest validator")]
+#[command(
+	name = "wgv",
+	about = "Cross-platform winget manifest validator",
+	version
+)]
 struct Cli {
 	/// Path to manifest file or directory
 	manifest: PathBuf,
