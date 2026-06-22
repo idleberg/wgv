@@ -26,13 +26,26 @@ struct Cli {
 	#[arg(long)]
 	ignore_warnings: bool,
 
-	/// Suppress informational output (errors and warnings are always shown)
-	#[arg(short = 'S', long)]
-	silent: bool,
+	/// Set log level [possible values: error, warn, info]
+	#[arg(long, default_value = "info", conflicts_with = "quiet")]
+	log_level: String,
+
+	/// Only show errors (shorthand for --log-level error)
+	#[arg(short, long)]
+	quiet: bool,
 }
 
 fn print_validation_errors(errors: &[ValidationError]) {
+	let min_level = if logger::log_level() == 0 {
+		ErrorLevel::Error
+	} else {
+		ErrorLevel::Warning
+	};
+
 	for error in errors {
+		if error.error_level == ErrorLevel::Warning && min_level == ErrorLevel::Error {
+			continue;
+		}
 		let prefix = match error.error_level {
 			ErrorLevel::Error => "\x1b[31mManifest Error:\x1b[0m",
 			ErrorLevel::Warning => "\x1b[33mManifest Warning:\x1b[0m",
@@ -83,10 +96,10 @@ fn validate_one(path: &Path, option: &ManifestValidateOption) -> u8 {
 	}
 }
 
-fn validate_multi(path: &Path, option: &ManifestValidateOption, silent: bool) -> u8 {
+fn validate_multi(path: &Path, option: &ManifestValidateOption) -> u8 {
 	logger_info!("Validating {} ...", path.display());
 	let code = validate_one(path, option);
-	if !silent {
+	if logger::log_level() >= 2 {
 		eprintln!();
 	}
 	code
@@ -95,8 +108,10 @@ fn validate_multi(path: &Path, option: &ManifestValidateOption, silent: bool) ->
 fn main() -> ExitCode {
 	let cli = Cli::parse();
 
-	if cli.silent {
-		logger::SILENT.store(true, std::sync::atomic::Ordering::Relaxed);
+	if cli.quiet {
+		logger::set_log_level("error");
+	} else {
+		logger::set_log_level(&cli.log_level);
 	}
 
 	let option = ManifestValidateOption {
@@ -139,11 +154,11 @@ fn main() -> ExitCode {
 		}
 	};
 
-	tally(validate_multi(&first, &option, cli.silent));
-	tally(validate_multi(&second, &option, cli.silent));
+	tally(validate_multi(&first, &option));
+	tally(validate_multi(&second, &option));
 
 	for path in iter {
-		tally(validate_multi(&path, &option, cli.silent));
+		tally(validate_multi(&path, &option));
 	}
 
 	let total = passed + warned + failed;
