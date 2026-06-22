@@ -83,6 +83,15 @@ fn validate_one(path: &Path, option: &ManifestValidateOption) -> u8 {
 	}
 }
 
+fn validate_multi(path: &Path, option: &ManifestValidateOption, silent: bool) -> u8 {
+	logger_info!("Validating {} ...", path.display());
+	let code = validate_one(path, option);
+	if !silent {
+		eprintln!();
+	}
+	code
+}
+
 fn main() -> ExitCode {
 	let cli = Cli::parse();
 
@@ -97,28 +106,29 @@ fn main() -> ExitCode {
 		..Default::default()
 	};
 
-	logger_info!("Discovering manifests...");
-	let paths = match discovery::resolve_manifest_paths(&cli.manifests) {
-		Ok(p) => p,
+	let mut iter = match discovery::discover_manifest_paths(&cli.manifests) {
+		Ok(it) => it,
 		Err(e) => {
 			logger_error!("{e}");
 			return ExitCode::from(2);
 		}
 	};
-	logger_info!("Found {} manifest(s).", paths.len());
 
-	if paths.len() == 1 {
-		return ExitCode::from(validate_one(&paths[0], &option));
-	}
+	let Some(first) = iter.next() else {
+		logger_error!("No manifests found");
+		return ExitCode::from(2);
+	};
+
+	let Some(second) = iter.next() else {
+		return ExitCode::from(validate_one(&first, &option));
+	};
 
 	let mut worst: u8 = 0;
 	let mut passed: usize = 0;
 	let mut failed: usize = 0;
 	let mut warned: usize = 0;
 
-	for path in &paths {
-		logger_info!("Validating {} ...", path.display());
-		let code = validate_one(path, &option);
+	let mut tally = |code: u8| {
 		match code {
 			0 => passed += 1,
 			1 => warned += 1,
@@ -127,9 +137,13 @@ fn main() -> ExitCode {
 		if code > worst {
 			worst = code;
 		}
-		if !cli.silent {
-			eprintln!();
-		}
+	};
+
+	tally(validate_multi(&first, &option, cli.silent));
+	tally(validate_multi(&second, &option, cli.silent));
+
+	for path in iter {
+		tally(validate_multi(&path, &option, cli.silent));
 	}
 
 	let total = passed + warned + failed;
