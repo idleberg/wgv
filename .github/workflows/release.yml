@@ -50,6 +50,7 @@ jobs:
         run: cross build --release --target ${{ matrix.target }}
 
       - name: Build (native)
+        if: ${{ !matrix.use-cross }}
         run: cargo build --release --target ${{ matrix.target }}
 
       - name: Get version
