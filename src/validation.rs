@@ -86,24 +86,24 @@ pub fn validate_manifest_from_yaml(manifest_list: &[YamlManifestInfo]) -> Vec<Va
 fn validate_root_fields(root: &Yaml) -> Vec<ValidationError> {
 	let mut errors = Vec::new();
 
-	if let Some(channel) = yaml_get_str(root, "Channel") {
-		if !channel.is_empty() {
-			errors.push(ValidationError::with_context_value(
-				ManifestErrorId::FieldNotSupported,
-				"Channel",
-				&channel,
-			));
-		}
+	if let Some(channel) = yaml_get_str(root, "Channel")
+		&& !channel.is_empty()
+	{
+		errors.push(ValidationError::with_context_value(
+			ManifestErrorId::FieldNotSupported,
+			"Channel",
+			&channel,
+		));
 	}
 
-	if let Some(version) = yaml_get_str(root, "PackageVersion") {
-		if is_approximate_version(&version) {
-			errors.push(ValidationError::with_context_value(
-				ManifestErrorId::ApproximateVersionNotAllowed,
-				"PackageVersion",
-				&version,
-			));
-		}
+	if let Some(version) = yaml_get_str(root, "PackageVersion")
+		&& is_approximate_version(&version)
+	{
+		errors.push(ValidationError::with_context_value(
+			ManifestErrorId::ApproximateVersionNotAllowed,
+			"PackageVersion",
+			&version,
+		));
 	}
 
 	errors
@@ -258,25 +258,27 @@ fn validate_installer_type_constraints(
 ) -> Vec<ValidationError> {
 	let mut errors = Vec::new();
 
-	if let Some(pfn) = yaml_get_str(installer, "PackageFamilyName") {
-		if !pfn.is_empty() && !effective_type.uses_package_family_name() {
-			errors.push(ValidationError::with_context_value_level(
-				ManifestErrorId::InstallerTypeDoesNotSupportPackageFamilyName,
-				"InstallerType",
-				effective_type.as_str(),
-				ErrorLevel::Warning,
-			));
-		}
+	if let Some(pfn) = yaml_get_str(installer, "PackageFamilyName")
+		&& !pfn.is_empty()
+		&& !effective_type.uses_package_family_name()
+	{
+		errors.push(ValidationError::with_context_value_level(
+			ManifestErrorId::InstallerTypeDoesNotSupportPackageFamilyName,
+			"InstallerType",
+			effective_type.as_str(),
+			ErrorLevel::Warning,
+		));
 	}
 
-	if let Some(pc) = yaml_get_str(installer, "ProductCode") {
-		if !pc.is_empty() && !effective_type.uses_product_code() {
-			errors.push(ValidationError::with_context_value(
-				ManifestErrorId::InstallerTypeDoesNotSupportProductCode,
-				"InstallerType",
-				effective_type.as_str(),
-			));
-		}
+	if let Some(pc) = yaml_get_str(installer, "ProductCode")
+		&& !pc.is_empty()
+		&& !effective_type.uses_product_code()
+	{
+		errors.push(ValidationError::with_context_value(
+			ManifestErrorId::InstallerTypeDoesNotSupportProductCode,
+			"InstallerType",
+			effective_type.as_str(),
+		));
 	}
 
 	if let Some(arp_entries) = yaml_get_array(installer, "AppsAndFeaturesEntries") {
@@ -295,14 +297,15 @@ fn validate_installer_type_constraints(
 		}
 
 		for entry in arp_entries {
-			if let Some(dv) = yaml_get_str(entry, "DisplayVersion") {
-				if !dv.is_empty() && is_approximate_version(&dv) {
-					errors.push(ValidationError::with_context_value(
-						ManifestErrorId::ApproximateVersionNotAllowed,
-						"DisplayVersion",
-						&dv,
-					));
-				}
+			if let Some(dv) = yaml_get_str(entry, "DisplayVersion")
+				&& !dv.is_empty()
+				&& is_approximate_version(&dv)
+			{
+				errors.push(ValidationError::with_context_value(
+					ManifestErrorId::ApproximateVersionNotAllowed,
+					"DisplayVersion",
+					&dv,
+				));
 			}
 		}
 	}
@@ -316,10 +319,10 @@ fn validate_installer_type_constraints(
 	}
 
 	if effective_type == InstallerType::Portable {
-		if let Some(cmds) = yaml_get_array(installer, "Commands") {
-			if cmds.len() > 1 {
-				errors.push(ValidationError::new(ManifestErrorId::ExceededCommandsLimit));
-			}
+		if let Some(cmds) = yaml_get_array(installer, "Commands")
+			&& cmds.len() > 1
+		{
+			errors.push(ValidationError::new(ManifestErrorId::ExceededCommandsLimit));
 		}
 		if scope != ScopeEnum::Unknown {
 			errors.push(
@@ -546,13 +549,13 @@ fn validate_return_codes(installer: &Yaml) -> Vec<ValidationError> {
 				_ => yaml_get_str(code_entry, "InstallerReturnCode")
 					.and_then(|s| s.parse::<i64>().ok()),
 			};
-			if let Some(val) = rc {
-				if !return_code_set.insert(val) {
-					errors.push(ValidationError::new(
-						ManifestErrorId::DuplicateReturnCodeEntry,
-					));
-					break;
-				}
+			if let Some(val) = rc
+				&& !return_code_set.insert(val)
+			{
+				errors.push(ValidationError::new(
+					ManifestErrorId::DuplicateReturnCodeEntry,
+				));
+				break;
 			}
 		}
 	}
@@ -563,17 +566,17 @@ fn validate_return_codes(installer: &Yaml) -> Vec<ValidationError> {
 fn validate_windows_features(installer: &Yaml) -> Vec<ValidationError> {
 	let mut errors = Vec::new();
 
-	if let Some(deps) = yaml_get_map(installer, "Dependencies") {
-		if let Some(features) = yaml_get_array(deps, "WindowsFeatures") {
-			for feature in features {
-				if let Yaml::String(name) = feature {
-					if !is_valid_windows_feature_name(name) {
-						errors.push(ValidationError::with_context(
-							ManifestErrorId::InvalidWindowsFeatureName,
-							name,
-						));
-					}
-				}
+	if let Some(deps) = yaml_get_map(installer, "Dependencies")
+		&& let Some(features) = yaml_get_array(deps, "WindowsFeatures")
+	{
+		for feature in features {
+			if let Yaml::String(name) = feature
+				&& !is_valid_windows_feature_name(name)
+			{
+				errors.push(ValidationError::with_context(
+					ManifestErrorId::InvalidWindowsFeatureName,
+					name,
+				));
 			}
 		}
 	}

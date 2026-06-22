@@ -1,4 +1,5 @@
 pub mod common;
+pub mod discovery;
 pub mod error;
 pub mod manifest;
 pub mod schema;

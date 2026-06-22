@@ -15,6 +15,7 @@ fn is_unicode_supported() -> bool {
 }
 
 pub enum Level {
+	Info,
 	Warn,
 	Error,
 	Success,
@@ -24,6 +25,10 @@ impl Level {
 	fn prefix(&self) -> String {
 		let unicode = is_unicode_supported();
 		match self {
+			Level::Info => {
+				let sym = if unicode { "ℹ" } else { "i" };
+				format!("\x1b[34m{sym}\x1b[0m")
+			}
 			Level::Warn => "\x1b[43;30m WARN \x1b[0m".to_string(),
 			Level::Error => "\x1b[41;30m ERROR \x1b[0m".to_string(),
 			Level::Success => {
@@ -66,6 +71,15 @@ macro_rules! logger_success {
     };
 }
 
+macro_rules! logger_info {
+    ($($arg:tt)*) => {
+        if !$crate::logger::SILENT.load(::std::sync::atomic::Ordering::Relaxed) {
+            $crate::logger::log($crate::logger::Level::Info, format_args!($($arg)*))
+        }
+    };
+}
+
 pub(crate) use logger_error;
+pub(crate) use logger_info;
 pub(crate) use logger_success;
 pub(crate) use logger_warn;

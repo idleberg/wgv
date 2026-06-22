@@ -69,69 +69,127 @@ pub enum ManifestErrorId {
 impl ManifestErrorId {
 	pub fn message(&self) -> &'static str {
 		match self {
-            Self::InvalidRootNode => "Encountered unexpected root node.",
-            Self::FieldUnknown => "Unknown field.",
-            Self::FieldIsNotPascalCase => "All field names should be PascalCased.",
-            Self::FieldDuplicate => "Duplicate field found in the manifest.",
-            Self::RequiredFieldEmpty => "Required field with empty value.",
-            Self::RequiredFieldMissing => "Required field missing.",
-            Self::InvalidFieldValue => "Invalid field value.",
-            Self::ExeInstallerMissingSilentSwitches => "Silent and SilentWithProgress switches are not specified for InstallerType exe. Please make sure the installer can run unattended.",
-            Self::FieldNotSupported => "Field is not supported.",
-            Self::FieldValueNotSupported => "Field value is not supported.",
-            Self::DuplicateInstallerEntry => "Duplicate installer entry found.",
-            Self::DuplicateInstallerHash => "Multiple Installer URLs found with the same InstallerSha256. Please ensure the accuracy of the URLs.",
-            Self::InstallerTypeDoesNotSupportPackageFamilyName => "The specified installer type does not support PackageFamilyName.",
-            Self::InstallerTypeDoesNotSupportProductCode => "The specified installer type does not support ProductCode.",
-            Self::InstallerTypeDoesNotWriteAppsAndFeaturesEntry => "The specified installer type does not write to Apps and Features entry.",
-            Self::IncompleteMultiFileManifest => "The multi file manifest is incomplete. A multi file manifest must contain at least version, installer and defaultLocale manifest.",
-            Self::InconsistentMultiFileManifestFieldValue => "The multi file manifest has inconsistent field values.",
-            Self::DuplicatePortableCommandAlias => "Duplicate portable command alias found.",
-            Self::DuplicateRelativeFilePath => "Duplicate relative file path found.",
-            Self::DuplicateMultiFileManifestType => "The multi file manifest should contain only one file with the particular ManifestType.",
-            Self::DuplicateMultiFileManifestLocale => "The multi file manifest contains duplicate PackageLocale.",
-            Self::UnsupportedMultiFileManifestType => "The multi file manifest should not contain file with the particular ManifestType.",
-            Self::InconsistentInstallerHash => "The values of InstallerSha256 do not match for all instances of the same InstallerUrl.",
-            Self::InconsistentMultiFileManifestDefaultLocale => "DefaultLocale value in version manifest does not match PackageLocale value in defaultLocale manifest.",
-            Self::FieldFailedToProcess => "Failed to process field.",
-            Self::InvalidBcp47Value => "The locale value is not a well formed bcp47 language tag.",
-            Self::BothAllowedAndExcludedMarketsDefined => "Both AllowedMarkets and ExcludedMarkets defined.",
-            Self::DuplicateReturnCodeEntry => "Duplicate installer return code found.",
-            Self::FieldRequireVerifiedPublisher => "Field usage requires verified publishers.",
-            Self::SingleManifestPackageHasDependencies => "Package has a single manifest and is a dependency of other manifests.",
-            Self::MultiManifestPackageHasDependencies => "Deleting the manifest will be break the following dependencies.",
-            Self::MissingManifestDependenciesNode => "Dependency not found: ",
-            Self::NoSuitableMinVersionDependency => "No Suitable Minimum Version: ",
-            Self::FoundDependencyLoop => "Loop found.",
-            Self::ExceededAppsAndFeaturesEntryLimit => "Only zero or one entry for Apps and Features may be specified for InstallerType portable.",
-            Self::ExceededCommandsLimit => "Only zero or one value for Commands may be specified for InstallerType portable.",
-            Self::ScopeNotSupported => "Scope is not supported for InstallerType portable.",
-            Self::InstallerMsixInconsistencies => "Inconsistent value in the manifest.",
-            Self::OptionalFieldMissing => "Optional field missing.",
-            Self::InstallerFailedToProcess => "Failed to process installer.",
-            Self::NoSupportedPlatforms => "No supported platforms.",
-            Self::ApproximateVersionNotAllowed => "Approximate version not allowed.",
-            Self::ArpVersionOverlapWithIndex => "DisplayVersion declared in the manifest has overlap with existing DisplayVersion range in the index. Existing DisplayVersion range in index: ",
-            Self::ArpVersionValidationInternalError => "Internal error while validating DisplayVersion against index.",
-            Self::ExceededNestedInstallerFilesLimit => "Only one entry for NestedInstallerFiles can be specified for non-portable InstallerTypes.",
-            Self::PortableCommandAliasEscapesDirectory => "Portable command alias must not point to a location outside of base directory.",
-            Self::RelativeFilePathEscapesDirectory => "Relative file path must not point to a location outside of archive directory.",
-            Self::ArpValidationError => "Arp Validation Error.",
-            Self::SchemaError => "Schema Error.",
-            Self::MsixSignatureHashFailed => "Failed to calculate MSIX signature hash. Please verify that the input file is a valid, signed MSIX.",
-            Self::ShadowManifestNotAllowed => "Shadow manifest is not allowed.",
-            Self::SchemaHeaderNotFound => "Schema header not found.",
-            Self::InvalidSchemaHeader => "The schema header is invalid. Please verify that the schema header is present and formatted correctly.",
-            Self::SchemaHeaderManifestTypeMismatch => "The manifest type in the schema header does not match the ManifestType property value in the manifest.",
-            Self::SchemaHeaderManifestVersionMismatch => "The manifest version in the schema header does not match the ManifestVersion property value in the manifest.",
-            Self::SchemaHeaderUrlPatternMismatch => "The schema header URL does not match the expected pattern.",
-            Self::InvalidPortableFiletype => "The file type of the referenced file is not allowed.",
-            Self::InvalidFontFiletype => "The file type of the referenced file is not a supported font file type.",
-            Self::InvalidWindowsFeatureName => "The provided value is not a valid Windows feature name.",
-            Self::BlockedMsiProperty => "Contains a blocked MSI property.",
-            Self::InvalidMsiSwitches => "Contains invalid MSI switches.",
-            Self::ContainsNetworkAddress => "Installer switch contains network address.",
-        }
+			Self::InvalidRootNode => "Encountered unexpected root node.",
+			Self::FieldUnknown => "Unknown field.",
+			Self::FieldIsNotPascalCase => "All field names should be PascalCased.",
+			Self::FieldDuplicate => "Duplicate field found in the manifest.",
+			Self::RequiredFieldEmpty => "Required field with empty value.",
+			Self::RequiredFieldMissing => "Required field missing.",
+			Self::InvalidFieldValue => "Invalid field value.",
+			Self::ExeInstallerMissingSilentSwitches => {
+				"Silent and SilentWithProgress switches are not specified for InstallerType exe. Please make sure the installer can run unattended."
+			}
+			Self::FieldNotSupported => "Field is not supported.",
+			Self::FieldValueNotSupported => "Field value is not supported.",
+			Self::DuplicateInstallerEntry => "Duplicate installer entry found.",
+			Self::DuplicateInstallerHash => {
+				"Multiple Installer URLs found with the same InstallerSha256. Please ensure the accuracy of the URLs."
+			}
+			Self::InstallerTypeDoesNotSupportPackageFamilyName => {
+				"The specified installer type does not support PackageFamilyName."
+			}
+			Self::InstallerTypeDoesNotSupportProductCode => {
+				"The specified installer type does not support ProductCode."
+			}
+			Self::InstallerTypeDoesNotWriteAppsAndFeaturesEntry => {
+				"The specified installer type does not write to Apps and Features entry."
+			}
+			Self::IncompleteMultiFileManifest => {
+				"The multi file manifest is incomplete. A multi file manifest must contain at least version, installer and defaultLocale manifest."
+			}
+			Self::InconsistentMultiFileManifestFieldValue => {
+				"The multi file manifest has inconsistent field values."
+			}
+			Self::DuplicatePortableCommandAlias => "Duplicate portable command alias found.",
+			Self::DuplicateRelativeFilePath => "Duplicate relative file path found.",
+			Self::DuplicateMultiFileManifestType => {
+				"The multi file manifest should contain only one file with the particular ManifestType."
+			}
+			Self::DuplicateMultiFileManifestLocale => {
+				"The multi file manifest contains duplicate PackageLocale."
+			}
+			Self::UnsupportedMultiFileManifestType => {
+				"The multi file manifest should not contain file with the particular ManifestType."
+			}
+			Self::InconsistentInstallerHash => {
+				"The values of InstallerSha256 do not match for all instances of the same InstallerUrl."
+			}
+			Self::InconsistentMultiFileManifestDefaultLocale => {
+				"DefaultLocale value in version manifest does not match PackageLocale value in defaultLocale manifest."
+			}
+			Self::FieldFailedToProcess => "Failed to process field.",
+			Self::InvalidBcp47Value => "The locale value is not a well formed bcp47 language tag.",
+			Self::BothAllowedAndExcludedMarketsDefined => {
+				"Both AllowedMarkets and ExcludedMarkets defined."
+			}
+			Self::DuplicateReturnCodeEntry => "Duplicate installer return code found.",
+			Self::FieldRequireVerifiedPublisher => "Field usage requires verified publishers.",
+			Self::SingleManifestPackageHasDependencies => {
+				"Package has a single manifest and is a dependency of other manifests."
+			}
+			Self::MultiManifestPackageHasDependencies => {
+				"Deleting the manifest will be break the following dependencies."
+			}
+			Self::MissingManifestDependenciesNode => "Dependency not found: ",
+			Self::NoSuitableMinVersionDependency => "No Suitable Minimum Version: ",
+			Self::FoundDependencyLoop => "Loop found.",
+			Self::ExceededAppsAndFeaturesEntryLimit => {
+				"Only zero or one entry for Apps and Features may be specified for InstallerType portable."
+			}
+			Self::ExceededCommandsLimit => {
+				"Only zero or one value for Commands may be specified for InstallerType portable."
+			}
+			Self::ScopeNotSupported => "Scope is not supported for InstallerType portable.",
+			Self::InstallerMsixInconsistencies => "Inconsistent value in the manifest.",
+			Self::OptionalFieldMissing => "Optional field missing.",
+			Self::InstallerFailedToProcess => "Failed to process installer.",
+			Self::NoSupportedPlatforms => "No supported platforms.",
+			Self::ApproximateVersionNotAllowed => "Approximate version not allowed.",
+			Self::ArpVersionOverlapWithIndex => {
+				"DisplayVersion declared in the manifest has overlap with existing DisplayVersion range in the index. Existing DisplayVersion range in index: "
+			}
+			Self::ArpVersionValidationInternalError => {
+				"Internal error while validating DisplayVersion against index."
+			}
+			Self::ExceededNestedInstallerFilesLimit => {
+				"Only one entry for NestedInstallerFiles can be specified for non-portable InstallerTypes."
+			}
+			Self::PortableCommandAliasEscapesDirectory => {
+				"Portable command alias must not point to a location outside of base directory."
+			}
+			Self::RelativeFilePathEscapesDirectory => {
+				"Relative file path must not point to a location outside of archive directory."
+			}
+			Self::ArpValidationError => "Arp Validation Error.",
+			Self::SchemaError => "Schema Error.",
+			Self::MsixSignatureHashFailed => {
+				"Failed to calculate MSIX signature hash. Please verify that the input file is a valid, signed MSIX."
+			}
+			Self::ShadowManifestNotAllowed => "Shadow manifest is not allowed.",
+			Self::SchemaHeaderNotFound => "Schema header not found.",
+			Self::InvalidSchemaHeader => {
+				"The schema header is invalid. Please verify that the schema header is present and formatted correctly."
+			}
+			Self::SchemaHeaderManifestTypeMismatch => {
+				"The manifest type in the schema header does not match the ManifestType property value in the manifest."
+			}
+			Self::SchemaHeaderManifestVersionMismatch => {
+				"The manifest version in the schema header does not match the ManifestVersion property value in the manifest."
+			}
+			Self::SchemaHeaderUrlPatternMismatch => {
+				"The schema header URL does not match the expected pattern."
+			}
+			Self::InvalidPortableFiletype => "The file type of the referenced file is not allowed.",
+			Self::InvalidFontFiletype => {
+				"The file type of the referenced file is not a supported font file type."
+			}
+			Self::InvalidWindowsFeatureName => {
+				"The provided value is not a valid Windows feature name."
+			}
+			Self::BlockedMsiProperty => "Contains a blocked MSI property.",
+			Self::InvalidMsiSwitches => "Contains invalid MSI switches.",
+			Self::ContainsNetworkAddress => "Installer switch contains network address.",
+		}
 	}
 
 	pub fn as_str(&self) -> &'static str {
