@@ -22,10 +22,6 @@ struct Cli {
 	#[arg(required = true)]
 	manifests: Vec<String>,
 
-	/// Ignore warnings during validation
-	#[arg(long)]
-	ignore_warnings: bool,
-
 	/// Set log level [possible values: error, warn, info]
 	#[arg(long, default_value = "info", conflicts_with = "quiet")]
 	log_level: String,
@@ -117,7 +113,7 @@ fn main() -> ExitCode {
 	let option = ManifestValidateOption {
 		full_validation: true,
 		schema_header_validation_as_warning: true,
-		throw_on_warning: !cli.ignore_warnings,
+		throw_on_warning: logger::log_level() >= 1,
 		..Default::default()
 	};
 

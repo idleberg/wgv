@@ -45,15 +45,16 @@ The binary is at `target/release/wgv`.
 ```
 Cross-platform winget manifest validator
 
-Usage: wgv [OPTIONS] <MANIFEST>
+Usage: wgv [OPTIONS] <MANIFESTS>...
 
 Arguments:
-  <MANIFEST>  Path to manifest file or directory
+  <MANIFESTS>...  Paths or glob patterns to manifest files or directories
 
 Options:
-      --ignore-warnings  Ignore warnings during validation
-  -S, --silent           Suppress informational output (errors and warnings are always shown)
-  -h, --help             Print help
+      --log-level <LOG_LEVEL>  Set log level [possible values: error, warn, info] [default: info]
+  -q, --quiet                  Only show errors (shorthand for --log-level error)
+  -h, --help                   Print help
+  -V, --version                Print version
 ```
 
 ## License
