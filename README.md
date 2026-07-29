@@ -8,7 +8,7 @@
 
 ## Description
 
-The official Winget [CLI](https://github.com/microsoft/winget-cli/) provides a command to validate manifests. This is quite useful when you're on Windows. `wgv` is an implementation of the validator written in Rust and available for Linux and macOS. It supports manifests version `1.0.0` up to `1.28.0` and was extensively tested against the Winget [package repository](https://github.com/microsoft/winget-pkgs).
+The official Winget [CLI](https://github.com/microsoft/winget-cli/) provides a command to validate manifests. This is quite useful when you're on Windows and a bummer when you‘re not. `wgv` is an implementation of the validator written in Rust and available for Linux and macOS. It supports manifests version `1.0.0` up to `1.28.0` and was extensively tested against the Winget [package repository](https://github.com/microsoft/winget-pkgs).
 
 ## Installation
 
